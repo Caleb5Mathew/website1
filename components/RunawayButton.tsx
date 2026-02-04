@@ -177,10 +177,26 @@ export default function RunawayButton({ onNoClick }: RunawayButtonProps) {
     return null;
   }
 
+  const handleNoButtonClick = useCallback(() => {
+    const newCount = noClickCount + 1;
+    setNoClickCount(newCount);
+    
+    // Trigger punishment immediately when No is clicked
+    if (onNoClick) {
+      onNoClick();
+    }
+    
+    // Make it harder to click by moving it away
+    setPosition({
+      x: Math.random() * (window.innerWidth - 200),
+      y: Math.random() * (window.innerHeight - 100),
+    });
+  }, [noClickCount, onNoClick]);
+
   return (
     <motion.div
       ref={buttonRef}
-      className="fixed z-10"
+      className="fixed z-10 cursor-pointer"
       initial={{ opacity: 0 }}
       animate={{ 
         x: position.x, 
@@ -196,41 +212,23 @@ export default function RunawayButton({ onNoClick }: RunawayButtonProps) {
         left: 0, 
         top: 0 
       }}
+      // Add click handler to the entire container for better hit detection
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNoButtonClick();
+      }}
+      onPointerDown={(e) => {
+        // Use pointer down for immediate response
+        e.preventDefault();
+        e.stopPropagation();
+        handleNoButtonClick();
+      }}
     >
+      {/* Invisible larger hit area */}
+      <div className="absolute -inset-4 bg-transparent" />
       <button
-        className="px-8 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 rounded-full font-medium text-lg transition-colors duration-200 shadow-lg touch-none select-none"
-        onClick={(e) => {
-          e.preventDefault();
-          const newCount = noClickCount + 1;
-          setNoClickCount(newCount);
-          
-          // Trigger punishment immediately when No is clicked
-          if (onNoClick) {
-            onNoClick();
-          }
-          
-          // Make it harder to click by moving it away
-          setPosition({
-            x: Math.random() * (window.innerWidth - 200),
-            y: Math.random() * (window.innerHeight - 100),
-          });
-        }}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          const newCount = noClickCount + 1;
-          setNoClickCount(newCount);
-          
-          // Trigger punishment immediately when No is clicked
-          if (onNoClick) {
-            onNoClick();
-          }
-          
-          // Move away on touch
-          setPosition({
-            x: Math.random() * (window.innerWidth - 200),
-            y: Math.random() * (window.innerHeight - 100),
-          });
-        }}
+        className="px-8 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 rounded-full font-medium text-lg transition-colors duration-200 shadow-lg select-none pointer-events-none"
       >
         No
       </button>
