@@ -173,10 +173,7 @@ export default function RunawayButton({ onNoClick }: RunawayButtonProps) {
     };
   }, [cursorPos, cursorIdle, isInitialized, distance]);
 
-  if (!isInitialized) {
-    return null;
-  }
-
+  // Must be defined before early return to follow React hooks rules
   const handleNoButtonClick = useCallback(() => {
     const newCount = noClickCount + 1;
     setNoClickCount(newCount);
@@ -187,11 +184,17 @@ export default function RunawayButton({ onNoClick }: RunawayButtonProps) {
     }
     
     // Make it harder to click by moving it away
-    setPosition({
-      x: Math.random() * (window.innerWidth - 200),
-      y: Math.random() * (window.innerHeight - 100),
-    });
+    if (typeof window !== 'undefined') {
+      setPosition({
+        x: Math.random() * (window.innerWidth - 200),
+        y: Math.random() * (window.innerHeight - 100),
+      });
+    }
   }, [noClickCount, onNoClick]);
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <motion.div
