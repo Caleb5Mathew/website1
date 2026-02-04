@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 
 interface RunawayButtonProps {
-  onYesClick: () => void;
   onNoClick?: () => void;
 }
 
-export default function RunawayButton({ onYesClick, onNoClick }: RunawayButtonProps) {
+export default function RunawayButton({ onNoClick }: RunawayButtonProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorIdle, setCursorIdle] = useState(false);
@@ -21,14 +19,13 @@ export default function RunawayButton({ onYesClick, onNoClick }: RunawayButtonPr
   const driftDirectionRef = useRef({ x: Math.random() - 0.5, y: Math.random() - 0.5 });
   const animationFrameRef = useRef<number>();
 
-  // Initialize button position to center-right
+  // Initialize button position next to Yes button (to the right of center)
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
-      const isMobile = window.innerWidth < 768;
-      const centerX = isMobile 
-        ? window.innerWidth / 2 
-        : window.innerWidth / 2 + 100;
-      const centerY = window.innerHeight / 2;
+      // Position No button to the right of center, near where Yes button is
+      // Yes button is centered, so No should be offset to the right
+      const centerX = window.innerWidth / 2 + 120; // Offset to the right of Yes button
+      const centerY = window.innerHeight / 2 + 80; // Slightly below center (below Yes button)
       setPosition({ x: centerX, y: centerY });
       setIsInitialized(true);
     }
@@ -181,75 +178,62 @@ export default function RunawayButton({ onYesClick, onNoClick }: RunawayButtonPr
   }
 
   return (
-    <>
-      <motion.div
-        ref={buttonRef}
-        className="fixed z-10"
-        initial={{ opacity: 0 }}
-        animate={{ 
-          x: position.x, 
-          y: position.y,
-          opacity: 1 
+    <motion.div
+      ref={buttonRef}
+      className="fixed z-10"
+      initial={{ opacity: 0 }}
+      animate={{ 
+        x: position.x, 
+        y: position.y,
+        opacity: 1 
+      }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 30 
+      }}
+      style={{ 
+        left: 0, 
+        top: 0 
+      }}
+    >
+      <button
+        className="px-8 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 rounded-full font-medium text-lg transition-colors duration-200 shadow-lg touch-none select-none"
+        onClick={(e) => {
+          e.preventDefault();
+          const newCount = noClickCount + 1;
+          setNoClickCount(newCount);
+          
+          // Trigger punishment immediately when No is clicked
+          if (onNoClick) {
+            onNoClick();
+          }
+          
+          // Make it harder to click by moving it away
+          setPosition({
+            x: Math.random() * (window.innerWidth - 200),
+            y: Math.random() * (window.innerHeight - 100),
+          });
         }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 300, 
-          damping: 30 
-        }}
-        style={{ 
-          left: 0, 
-          top: 0 
+        onTouchStart={(e) => {
+          e.preventDefault();
+          const newCount = noClickCount + 1;
+          setNoClickCount(newCount);
+          
+          // Trigger punishment immediately when No is clicked
+          if (onNoClick) {
+            onNoClick();
+          }
+          
+          // Move away on touch
+          setPosition({
+            x: Math.random() * (window.innerWidth - 200),
+            y: Math.random() * (window.innerHeight - 100),
+          });
         }}
       >
-        <button
-          className="px-8 py-4 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 rounded-full font-medium text-lg transition-colors duration-200 shadow-lg touch-none select-none"
-          onClick={(e) => {
-            e.preventDefault();
-            const newCount = noClickCount + 1;
-            setNoClickCount(newCount);
-            
-            // After 3 clicks, trigger punishment
-            if (newCount >= 3 && onNoClick) {
-              onNoClick();
-            }
-            
-            // Make it harder to click by moving it away
-            setPosition({
-              x: Math.random() * (window.innerWidth - 200),
-              y: Math.random() * (window.innerHeight - 100),
-            });
-          }}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            const newCount = noClickCount + 1;
-            setNoClickCount(newCount);
-            
-            // After 3 clicks, trigger punishment
-            if (newCount >= 3 && onNoClick) {
-              onNoClick();
-            }
-            
-            // Move away on touch
-            setPosition({
-              x: Math.random() * (window.innerWidth - 200),
-              y: Math.random() * (window.innerHeight - 100),
-            });
-          }}
-        >
-          No
-        </button>
-      </motion.div>
-      
-      <Link href="/yes" className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-        <motion.button
-          className="px-12 py-6 bg-gradient-to-r from-romantic-rose to-romantic-blush text-white rounded-full font-semibold text-xl shadow-xl hover:shadow-2xl active:shadow-lg transition-all duration-300"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onYesClick}
-        >
-          Yes ♥
-        </motion.button>
-      </Link>
-    </>
+        No
+      </button>
+    </motion.div>
   );
 }

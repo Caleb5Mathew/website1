@@ -60,7 +60,7 @@ export default function Home() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="relative w-32 h-32 md:w-40 md:h-40"
+          className="relative w-40 h-40 md:w-48 md:h-48"
         >
           <Image
             src="/IMG_0536.jpg"
@@ -89,7 +89,7 @@ export default function Home() {
             ease: "easeInOut",
             delay: 0.5,
           }}
-          className="relative w-32 h-32 md:w-40 md:h-40"
+          className="relative w-40 h-40 md:w-48 md:h-48"
         >
           <Image
             src="/IMG_0535.jpg"
@@ -101,7 +101,7 @@ export default function Home() {
         </motion.div>
       </motion.div>
       
-      <div className="text-center z-10 px-4 mb-32 md:mb-0">
+      <div className="text-center z-10 px-4 flex flex-col items-center">
         <motion.h1
           className="text-4xl sm:text-5xl md:text-6xl font-light text-romantic-deep mb-6 md:mb-8"
           initial={{ opacity: 0, y: -20 }}
@@ -119,9 +119,28 @@ export default function Home() {
         >
           Will you be my Valentine?
         </motion.h2>
+
+        {/* Yes Button - Static position below question */}
+        <motion.div
+          className="relative z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Link href="/yes">
+            <motion.button
+              className="px-12 py-6 bg-gradient-to-r from-romantic-rose to-romantic-blush text-white rounded-full font-semibold text-xl shadow-xl hover:shadow-2xl active:shadow-lg transition-all duration-300"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleYesClick}
+            >
+              Yes ♥
+            </motion.button>
+          </Link>
+        </motion.div>
       </div>
 
-      <RunawayButton onYesClick={handleYesClick} onNoClick={handleNoClick} />
+      <RunawayButton onNoClick={handleNoClick} />
       
       <PunishmentSequence isActive={showPunishment} onComplete={handlePunishmentComplete} />
     </motion.main>
