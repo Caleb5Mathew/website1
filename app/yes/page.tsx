@@ -50,7 +50,7 @@ export default function YesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          You've made me the happiest person in the world, Melody!
+          You've made me the happiest person in the world!
         </motion.p>
 
         <motion.div
